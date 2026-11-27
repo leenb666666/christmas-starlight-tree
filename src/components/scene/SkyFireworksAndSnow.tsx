@@ -170,17 +170,22 @@ const SingleFirework: React.FC<{
     if (externalTriggerRef.current !== st.lastExtSeen) {
       st.lastExtSeen = externalTriggerRef.current;
       st.lastStart = now - cfg.id * 0.25;
-      st.x = cfg.side * (4.4 + Math.random() * 3.0);
+      const ringAngle = (cfg.id / 4) * Math.PI * 2 + Math.random() * 0.6;
+      const dist = 6.2 + Math.random() * 2.8;
+      st.x = Math.cos(ringAngle) * dist;
       st.y = 1.8 + Math.random() * 2.5;
-      st.z = -3.8 - Math.random() * 2.0;
+      st.z = Math.sin(ringAngle) * dist;
     } else if (ready && now - st.lastStart > cfg.interval) {
       if (st.lastStart < 0) {
         st.lastStart = now - cfg.interval + cfg.offset;
       } else {
         st.lastStart = now;
-        st.x = cfg.side * (4.6 + Math.random() * 3.4);
-        st.y = 1.6 + Math.random() * 2.8;
-        st.z = -4.2 - Math.random() * 2.2;
+        const ringAngle =
+          (cfg.side < 0 ? Math.PI * 0.72 : Math.PI * 0.28) + (Math.random() - 0.5) * Math.PI * 1.4;
+        const dist = 6.4 + Math.random() * 3.0;
+        st.x = Math.cos(ringAngle) * dist;
+        st.y = 1.6 + Math.random() * 2.7;
+        st.z = Math.sin(ringAngle) * dist;
       }
     }
 

@@ -17,10 +17,34 @@ import { QuizModal } from './components/ui/QuizModal';
 import { TypewriterLetterModal } from './components/ui/TypewriterLetterModal';
 import { CustomizeDrawer } from './components/ui/CustomizeDrawer';
 
+const DRAFT_STORAGE_KEY = 'starlight_tree_draft_v1';
+
+function loadInitialGift(): { config: GiftConfig; isShared: boolean } {
+  const fromUrl = getGiftFromCurrentUrl();
+  if (fromUrl) {
+    return { config: fromUrl, isShared: true };
+  }
+  try {
+    const saved = localStorage.getItem(DRAFT_STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved) as Partial<GiftConfig>;
+      if (parsed && typeof parsed === 'object') {
+        return {
+          config: { ...DEFAULT_GIFT_CONFIG, ...parsed },
+          isShared: false,
+        };
+      }
+    }
+  } catch {
+    // Ignore storage errors
+  }
+  return { config: DEFAULT_GIFT_CONFIG, isShared: false };
+}
+
 export const App: React.FC = () => {
-  const [config, setConfig] = useState<GiftConfig>(
-    () => getGiftFromCurrentUrl() ?? DEFAULT_GIFT_CONFIG
-  );
+  const [{ config: initialCfg, isShared }] = useState(() => loadInitialGift());
+  const [config, setConfig] = useState<GiftConfig>(initialCfg);
+  const [isSharedGift, setIsSharedGift] = useState<boolean>(isShared);
   const [stage, setStage] = useState<'envelope' | 'scene'>('envelope');
   const [treeGrown, setTreeGrown] = useState(false);
   const [replaySignal, setReplaySignal] = useState(0);
@@ -32,6 +56,16 @@ export const App: React.FC = () => {
   const [customizeOpen, setCustomizeOpen] = useState(false);
   const [pickedWishIdx, setPickedWishIdx] = useState<number | null>(null);
   const [activeBlessingRibbon, setActiveBlessingRibbon] = useState<string | null>(null);
+
+  const updateConfig = useCallback((next: GiftConfig) => {
+    setConfig(next);
+    setIsSharedGift(false);
+    try {
+      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(next));
+    } catch {
+      // Ignore quota errors
+    }
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -86,6 +120,15 @@ export const App: React.FC = () => {
       {stage === 'envelope' && (
         <EnvelopeIntro
           config={config}
+          isSharedGift={isSharedGift}
+          onUpdateRecipient={(recipient) => {
+            const clean = recipient;
+            updateConfig({
+              ...config,
+              recipient: clean,
+              letterGreeting: clean.trim() ? `${clean.trim()}：` : config.letterGreeting,
+            });
+          }}
           onOpen={handleOpenEnvelope}
           onOpenCustomize={() => setCustomizeOpen(true)}
         />
@@ -180,6 +223,8 @@ export const App: React.FC = () => {
       <TypewriterLetterModal
         open={letterOpen}
         config={config}
+        isSharedGift={isSharedGift}
+        onUpdateLetter={(patch) => updateConfig({ ...config, ...patch })}
         onClose={() => setLetterOpen(false)}
       />
 
@@ -187,7 +232,7 @@ export const App: React.FC = () => {
       <CustomizeDrawer
         open={customizeOpen}
         config={config}
-        onChange={setConfig}
+        onChange={updateConfig}
         onClose={() => setCustomizeOpen(false)}
         onPreviewFromEnvelope={() => {
           setTreeGrown(false);

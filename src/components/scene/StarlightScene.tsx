@@ -17,30 +17,43 @@ interface StarlightSceneProps {
   onTreeGrown: () => void;
 }
 
-const backdropVert = /* glsl */ `
-  varying vec2 vUv;
+const skyDomeVert = /* glsl */ `
+  varying vec3 vDir;
   void main() {
-    vUv = uv;
+    vDir = normalize(position);
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
 
-const backdropFrag = /* glsl */ `
+const skyDomeFrag = /* glsl */ `
   uniform float uTime;
-  varying vec2 vUv;
+  varying vec3 vDir;
 
   void main() {
-    vec2 p = vUv - vec2(0.5, 0.56);
-    float d = length(p * vec2(1.0, 1.35));
+    vec3 dir = normalize(vDir);
+    // Seamless 360-degree spherical midnight-teal velvet sky & gentle aurora bands
+    float elev = dir.y; // -1 at nadir, 0 at horizon, +1 at zenith
+    float azim = atan(dir.z, dir.x);
 
-    // Rich velvety midnight-obsidian sky with subtle cool teal aurora glow behind the tree
-    vec3 deepNight = vec3(0.004, 0.009, 0.018);
-    vec3 tealAurora = vec3(0.014, 0.044, 0.068);
-    vec3 warmCore = vec3(0.062, 0.042, 0.016);
+    vec3 zenithCol = vec3(0.005, 0.012, 0.024);
+    vec3 horizonTeal = vec3(0.018, 0.052, 0.076);
+    vec3 nadirCol = vec3(0.004, 0.009, 0.016);
 
-    float wave = 0.5 + 0.5 * sin(vUv.x * 4.5 + uTime * 0.25) * cos(vUv.y * 3.0 - uTime * 0.18);
-    vec3 col = mix(deepNight, tealAurora, exp(-d * d * 2.8) * (0.65 + 0.35 * wave));
-    col += warmCore * exp(-length(vUv - vec2(0.5, 0.42)) * 4.6) * 0.55;
+    // Smooth vertical gradient around the entire 360° dome
+    float horizonBand = exp(-pow((elev - 0.06) * 3.1, 2.0));
+    vec3 col = elev >= 0.0
+      ? mix(horizonTeal, zenithCol, smoothstep(0.0, 0.68, elev))
+      : mix(horizonTeal, nadirCol, smoothstep(0.0, -0.45, elev));
+
+    // Subtle organic 360° waving aurora curtain shimmer (completely seamless across atan wrap)
+    float curtain1 = 0.5 + 0.5 * sin(azim * 2.0 + uTime * 0.14 + elev * 3.5);
+    float curtain2 = 0.5 + 0.5 * cos(azim * 3.0 - uTime * 0.11 + elev * 4.2);
+    float auroraMask = horizonBand * (0.45 + 0.55 * curtain1 * curtain2);
+    col += vec3(0.012, 0.044, 0.062) * auroraMask;
+
+    // Gentle warm ambient glow low near the horizon to cradle the golden tree
+    float warmGlow = exp(-pow((elev + 0.08) * 4.2, 2.0)) * 0.22;
+    col += vec3(0.048, 0.032, 0.014) * warmGlow;
 
     gl_FragColor = vec4(col, 1.0);
   }
@@ -192,15 +205,17 @@ const SceneOrchestrator: React.FC<StarlightSceneProps> = ({
       <color attach="background" args={['#040b13']} />
       <fogExp2 attach="fog" args={['#040b13', 0.02]} />
 
-      {/* Subtle deep-sky midnight-teal aurora backdrop plane */}
-      <mesh position={[0, 1.2, -16]}>
-        <planeGeometry args={[52, 34]} />
+      {/* Seamless 360-degree midnight-teal aurora sky dome (zero seams from any orbit angle!) */}
+      <mesh>
+        <sphereGeometry args={[48, 48, 32]} />
         <shaderMaterial
           ref={backdropMatRef}
-          vertexShader={backdropVert}
-          fragmentShader={backdropFrag}
+          vertexShader={skyDomeVert}
+          fragmentShader={skyDomeFrag}
           uniforms={backdropUniforms}
+          side={THREE.BackSide}
           depthWrite={false}
+          fog={false}
         />
       </mesh>
 
@@ -208,7 +223,7 @@ const SceneOrchestrator: React.FC<StarlightSceneProps> = ({
       <SkyFireworksAndSnow ready={grownNotifiedRef.current} fireworkTriggerRef={fireworkTriggerRef} />
 
       {/* Core rotating golden starlight tree assembly (positioned cleanly below calligraphic header) */}
-      <group ref={treeGroupRef} position={[0, -0.95, 0]}>
+      <group ref={treeGroupRef} position={[0, -1.12, 0]}>
         <StarlightTreeParticles
           growthRef={growthRef}
           waveYRef={waveYRef}
@@ -219,7 +234,7 @@ const SceneOrchestrator: React.FC<StarlightSceneProps> = ({
       </group>
 
       {/* Ground concentric water-light ripples & interactive click shockwaves */}
-      <group position={[0, -0.95, 0]}>
+      <group position={[0, -1.12, 0]}>
         <GroundRippleSystem
           growthRef={growthRef}
           pulsesRef={pulsesRef}

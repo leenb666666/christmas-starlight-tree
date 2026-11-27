@@ -135,6 +135,88 @@ body,
   animation: waxPulseRing 2s ease-out infinite;
 }
 
+/* Direct Inline Editable Recipient Slot on the Ivory Envelope Flap */
+.env-recipient-slot {
+  position: absolute;
+  left: 50%;
+  top: 31%;
+  transform: translate(-50%, -50%);
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.env-recipient-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px dashed rgba(138, 110, 62, 0.35);
+  background: rgba(250, 246, 236, 0.65);
+  font-family: 'STKaiti', 'KaiTi', 'Songti SC', Georgia, serif;
+  font-size: clamp(16px, 2.4vw, 20px);
+  letter-spacing: 0.12em;
+  color: #2c261f;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.env-recipient-btn:hover {
+  border-color: #b48534;
+  background: rgba(255, 252, 245, 0.95);
+  box-shadow: 0 4px 12px rgba(90, 68, 30, 0.12);
+}
+
+.env-edit-icon {
+  color: #9e7834;
+  opacity: 0.8;
+}
+
+.env-inline-editor {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px 4px 12px;
+  border-radius: 999px;
+  border: 1.5px solid #b48534;
+  background: #fffdf8;
+  box-shadow: 0 6px 18px rgba(72, 54, 24, 0.16);
+}
+
+.env-to-prefix {
+  font-family: 'STKaiti', 'KaiTi', 'Songti SC', serif;
+  font-size: 17px;
+  color: #6b5634;
+  white-space: nowrap;
+}
+
+.env-inline-input {
+  width: 126px;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: 'STKaiti', 'KaiTi', 'Songti SC', serif;
+  font-size: 17px;
+  color: #231d16;
+  text-align: center;
+}
+
+.env-inline-done {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: #1b4d37;
+  color: #fff8ea;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
 .intro-caption-main {
   font-family: 'STKaiti', 'KaiTi', 'Songti SC', Georgia, serif;
   font-size: 19px;
@@ -186,12 +268,13 @@ body,
 
 .scene-top-actions {
   position: absolute;
-  top: 20px;
-  right: 22px;
+  top: 14px;
+  right: 16px;
   display: flex;
   align-items: center;
   gap: 8px;
   pointer-events: auto;
+  z-index: 25;
 }
 
 .hud-chip,
@@ -224,10 +307,10 @@ body,
   background: rgba(16, 36, 54, 0.75);
 }
 
-/* Calligraphic "Merry Christmas" left-to-right writing reveal (00:07 - 00:08) */
+/* Calligraphic "Merry Christmas" left-to-right writing reveal — clear of top-right actions at all widths */
 .calligraphy-header {
   position: absolute;
-  top: 22px;
+  top: 52px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -574,6 +657,126 @@ body,
   left: 50%;
   transform: translateX(-50%);
   filter: drop-shadow(0 8px 14px rgba(26, 8, 8, 0.38));
+}
+
+.letter-edit-toggle,
+.letter-editing-tag {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid #d9cbb2;
+  background: rgba(255, 253, 248, 0.82);
+  color: #6b5636;
+  font-size: 12px;
+}
+
+.letter-edit-toggle {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.letter-edit-toggle:hover {
+  border-color: #b48534;
+  color: #2f2518;
+  background: #ffffff;
+}
+
+.letter-editing-tag {
+  color: #1b4d37;
+  border-color: rgba(27, 77, 55, 0.35);
+  background: rgba(235, 245, 239, 0.85);
+  font-weight: 500;
+}
+
+.letter-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-height: 300px;
+}
+
+.parchment-input {
+  width: 100%;
+  border: 1px dashed rgba(176, 138, 66, 0.48);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.45);
+  color: #2c241b;
+  font-family: 'STKaiti', 'KaiTi', 'Songti SC', Georgia, serif;
+  outline: none;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.parchment-input:focus {
+  border-style: solid;
+  border-color: #b48534;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.parchment-greeting {
+  font-size: 17px;
+  padding: 8px 12px;
+}
+
+.parchment-body {
+  flex: 1;
+  min-height: 205px;
+  font-size: 15.5px;
+  line-height: 1.85;
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+.parchment-sender-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  color: #63523d;
+  font-family: 'STKaiti', 'KaiTi', 'Songti SC', serif;
+}
+
+.parchment-sender {
+  width: 190px;
+  font-size: 15.5px;
+  padding: 6px 10px;
+  text-align: right;
+}
+
+.letter-edit-actions,
+.letter-done-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.letter-share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid #c9a65d;
+  background: rgba(255, 249, 232, 0.88);
+  color: #6a4f1b;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.letter-share-btn:hover {
+  background: #fff4d2;
+  border-color: #a87e2c;
+  color: #3f2d0b;
 }
 
 .letter-close-icon {

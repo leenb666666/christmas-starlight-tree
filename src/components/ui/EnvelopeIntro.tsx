@@ -1,29 +1,33 @@
 import React, { useState } from 'react';
-import { Sparkles } from 'lucide-react';
+import { Check, PenLine, Sparkles } from 'lucide-react';
 import { GiftConfig } from '../../types/gift';
 
 interface EnvelopeIntroProps {
   config: GiftConfig;
+  isSharedGift: boolean;
+  onUpdateRecipient: (recipient: string, tagline?: string) => void;
   onOpen: () => void;
   onOpenCustomize: () => void;
 }
 
 /**
  * Opening Ivory Tabletop & Deep Emerald Gold-Filigree Envelope (00:00 - 00:01).
- * Clicking the crimson wax seal unleashes a luminous pearlescent flash transition
- * directly into the dark starry night particle scene.
+ * Supports directly editing the recipient name right on the envelope flap
+ * while preserving the wax-seal luminous flash unseal ceremony.
  */
 export const EnvelopeIntro: React.FC<EnvelopeIntroProps> = ({
   config,
+  isSharedGift,
+  onUpdateRecipient,
   onOpen,
   onOpenCustomize,
 }) => {
   const [opening, setOpening] = useState(false);
+  const [editingName, setEditingName] = useState(false);
 
   const handleUnseal = () => {
-    if (opening) return;
+    if (opening || editingName) return;
     setOpening(true);
-    // Crisp luminous flash peak handoff at 460ms matching 00:01 -> 00:02
     window.setTimeout(() => {
       onOpen();
     }, 460);
@@ -35,29 +39,29 @@ export const EnvelopeIntro: React.FC<EnvelopeIntroProps> = ({
         type="button"
         className="intro-customize-btn"
         onClick={onOpenCustomize}
-        title="定制你的专属圣诞夜与独立分享链接"
+        title="定制你的专属圣诞树、信封称呼与打字机长信"
       >
         <Sparkles size={14} />
-        <span>定制我的专属祝福</span>
+        <span>{isSharedGift ? '我也要定制一份' : '定制祝福与分享'}</span>
       </button>
 
       <div className="intro-center">
         {/* Horizontal Forest-Green & Ivory Luxury Christmas Envelope */}
-        <div
-          className={`intro-envelope ${opening ? 'is-unsealing' : ''}`}
-          onClick={handleUnseal}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') handleUnseal();
-          }}
-          aria-label="点击火漆拆开圣诞惊喜"
-        >
-          {/* Soft paper shadow */}
+        <div className={`intro-envelope ${opening ? 'is-unsealing' : ''}`}>
           <div className="intro-env-shadow" />
 
-          {/* Main Envelope Artwork SVG (Ivory upper flap + Forest Emerald pine-art lower pocket + gold foil linework) */}
-          <svg viewBox="0 0 520 330" className="intro-env-svg">
+          {/* Envelope SVG Artwork */}
+          <svg
+            viewBox="0 0 520 330"
+            className="intro-env-svg"
+            onClick={handleUnseal}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') handleUnseal();
+            }}
+            aria-label="点击火漆拆开圣诞惊喜"
+          >
             <defs>
               <linearGradient id="env-ivory-top" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stopColor="#faf6ec" />
@@ -83,14 +87,13 @@ export const EnvelopeIntro: React.FC<EnvelopeIntroProps> = ({
             {/* Emerald body */}
             <rect x="0" y="0" width="520" height="330" rx="10" fill="url(#env-emerald)" />
 
-            {/* Delicate snowy pine forest & gold stars across bottom emerald pocket */}
+            {/* Delicate pine silhouette & gold stardust */}
             <g opacity="0.28" fill="#d9c082">
               <polygon points="48,330 82,226 116,330" />
               <polygon points="104,330 132,252 160,330" />
               <polygon points="365,330 398,238 432,330" />
               <polygon points="418,330 456,214 494,330" />
             </g>
-            {/* Subtle golden snow dots */}
             {[
               [62, 232], [140, 266], [210, 286], [312, 290], [385, 254], [452, 230],
               [90, 295], [430, 298], [260, 268],
@@ -98,7 +101,7 @@ export const EnvelopeIntro: React.FC<EnvelopeIntroProps> = ({
               <circle key={idx} cx={cx} cy={cy} r="2.2" fill="#f5d98e" opacity="0.7" />
             ))}
 
-            {/* Lower pocket subtle diagonal fold seams */}
+            {/* Lower pocket fold seams */}
             <path d="M0,330 L260,162 L520,330" fill="none" stroke="url(#env-gold)" strokeOpacity="0.42" strokeWidth="1.2" />
 
             {/* Upper Ivory Triangular Flap */}
@@ -116,10 +119,10 @@ export const EnvelopeIntro: React.FC<EnvelopeIntroProps> = ({
               strokeWidth="1"
             />
 
-            {/* Elegant title stamped on the ivory upper flap */}
+            {/* Header stamp on ivory upper flap */}
             <text
               x="260"
-              y="70"
+              y="66"
               textAnchor="middle"
               fill="#7c6336"
               fontSize="14"
@@ -127,17 +130,6 @@ export const EnvelopeIntro: React.FC<EnvelopeIntroProps> = ({
               fontFamily="Georgia, serif"
             >
               MERRY CHRISTMAS
-            </text>
-            <text
-              x="260"
-              y="104"
-              textAnchor="middle"
-              fill="#2c261f"
-              fontSize="21"
-              letterSpacing="3"
-              fontFamily="STKaiti, KaiTi, Songti SC, serif"
-            >
-              致 · {config.recipient}
             </text>
 
             {/* Outer gold hairline frame */}
@@ -151,7 +143,6 @@ export const EnvelopeIntro: React.FC<EnvelopeIntroProps> = ({
               />
               <circle cx="0" cy="0" r="24" fill="none" stroke="#eb766b" strokeOpacity="0.48" strokeWidth="2.2" />
               <circle cx="0" cy="0" r="21" fill="none" stroke="#5e0d11" strokeOpacity="0.55" strokeWidth="1.5" />
-              {/* Embossed Christmas Star inside wax seal */}
               <path
                 d="M0,-13 Q2,-2 13,0 Q2,2 0,13 Q-2,2 -13,0 Q-2,-2 0,-13 Z"
                 fill="#f6cf7f"
@@ -159,12 +150,57 @@ export const EnvelopeIntro: React.FC<EnvelopeIntroProps> = ({
             </g>
           </svg>
 
-          {/* Pulsing subtle aura ring around the wax seal */}
+          {/* Direct Inline Editable Recipient Name directly on the Ivory Flap! */}
+          <div
+            className={`env-recipient-slot ${editingName ? 'is-editing' : ''}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {editingName ? (
+              <div className="env-inline-editor">
+                <span className="env-to-prefix">致 ·</span>
+                <input
+                  type="text"
+                  className="env-inline-input"
+                  value={config.recipient}
+                  maxLength={20}
+                  autoFocus
+                  placeholder="输入对方名字"
+                  onChange={(e) => onUpdateRecipient(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') setEditingName(false);
+                  }}
+                />
+                <button
+                  type="button"
+                  className="env-inline-done"
+                  onClick={() => setEditingName(false)}
+                  title="完成修改"
+                >
+                  <Check size={13} />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="env-recipient-btn"
+                onClick={() => setEditingName(true)}
+                title="点击直接修改信封收信人名字"
+              >
+                <span>致 · {config.recipient || '亲爱的你'}</span>
+                {!isSharedGift && <PenLine size={13} className="env-edit-icon" />}
+              </button>
+            )}
+          </div>
+
           <div className="intro-wax-pulse" />
         </div>
 
         <div className="intro-caption-main">{config.envelopeTagline}</div>
-        <div className="intro-caption-hint">轻点红色火漆印，点亮专属星光圣诞树</div>
+        <div className="intro-caption-hint">
+          {isSharedGift
+            ? '轻点红色火漆印，点亮专属星光圣诞树'
+            : '点击上方名字可直接修改 · 轻点红色火漆开启星光圣诞树'}
+        </div>
       </div>
 
       {/* Luminous pearlescent white-gold flash overlay (00:01) */}
