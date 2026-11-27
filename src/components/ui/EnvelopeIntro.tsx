@@ -35,15 +35,17 @@ export const EnvelopeIntro: React.FC<EnvelopeIntroProps> = ({
 
   return (
     <div className={`intro-screen ${opening ? 'is-flashing' : ''}`}>
-      <button
-        type="button"
-        className="intro-customize-btn"
-        onClick={onOpenCustomize}
-        title="定制你的专属圣诞树、信封称呼与打字机长信"
-      >
-        <Sparkles size={14} />
-        <span>{isSharedGift ? '我也要定制一份' : '定制祝福与分享'}</span>
-      </button>
+      {!isSharedGift && (
+        <button
+          type="button"
+          className="intro-customize-btn"
+          onClick={onOpenCustomize}
+          title="定制你的专属圣诞树、信封称呼与打字机长信"
+        >
+          <Sparkles size={14} />
+          <span>定制祝福与分享</span>
+        </button>
+      )}
 
       <div className="intro-center">
         {/* Horizontal Forest-Green & Ivory Luxury Christmas Envelope */}
@@ -150,12 +152,18 @@ export const EnvelopeIntro: React.FC<EnvelopeIntroProps> = ({
             </g>
           </svg>
 
-          {/* Direct Inline Editable Recipient Name directly on the Ivory Flap! */}
+          {/* Recipient Name on Ivory Flap: read-only in shared link, inline-editable in creator mode */}
           <div
             className={`env-recipient-slot ${editingName ? 'is-editing' : ''}`}
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              if (!isSharedGift) e.stopPropagation();
+            }}
           >
-            {editingName ? (
+            {isSharedGift ? (
+              <div className="env-recipient-readonly" onClick={handleUnseal}>
+                致 · {config.recipient || '亲爱的你'}
+              </div>
+            ) : editingName ? (
               <div className="env-inline-editor">
                 <span className="env-to-prefix">致 ·</span>
                 <input
@@ -187,7 +195,7 @@ export const EnvelopeIntro: React.FC<EnvelopeIntroProps> = ({
                 title="点击直接修改信封收信人名字"
               >
                 <span>致 · {config.recipient || '亲爱的你'}</span>
-                {!isSharedGift && <PenLine size={13} className="env-edit-icon" />}
+                <PenLine size={13} className="env-edit-icon" />
               </button>
             )}
           </div>

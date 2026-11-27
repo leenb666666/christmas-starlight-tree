@@ -137,7 +137,7 @@ export const App: React.FC = () => {
       {/* Stage 2: Starry Night HUD Overlays (00:07 - 00:33) */}
       {stage === 'scene' && (
         <div className="scene-hud">
-          {/* Top-right discrete luxury controls */}
+          {/* Top-right discrete luxury controls (hide customize/share in recipient shared links!) */}
           <div className="scene-top-actions">
             <button
               type="button"
@@ -148,15 +148,17 @@ export const App: React.FC = () => {
               <RotateCcw size={14} />
               <span>重播生长</span>
             </button>
-            <button
-              type="button"
-              className="hud-chip"
-              onClick={() => setCustomizeOpen(true)}
-              title="修改文案并生成专属分享链接"
-            >
-              <Sparkles size={14} />
-              <span>定制分享</span>
-            </button>
+            {!isSharedGift && (
+              <button
+                type="button"
+                className="hud-chip"
+                onClick={() => setCustomizeOpen(true)}
+                title="修改文案并生成专属分享链接"
+              >
+                <Sparkles size={14} />
+                <span>定制分享</span>
+              </button>
+            )}
             <button
               type="button"
               className="hud-icon-btn"
@@ -228,18 +230,20 @@ export const App: React.FC = () => {
         onClose={() => setLetterOpen(false)}
       />
 
-      {/* Creator Customization & Private Shareable Link Drawer */}
-      <CustomizeDrawer
-        open={customizeOpen}
-        config={config}
-        onChange={updateConfig}
-        onClose={() => setCustomizeOpen(false)}
-        onPreviewFromEnvelope={() => {
-          setTreeGrown(false);
-          setActiveBlessingRibbon(null);
-          setStage('envelope');
-        }}
-      />
+      {/* Creator Customization & Private Shareable Link Drawer (Creator mode only) */}
+      {!isSharedGift && (
+        <CustomizeDrawer
+          open={customizeOpen}
+          config={config}
+          onChange={updateConfig}
+          onClose={() => setCustomizeOpen(false)}
+          onPreviewFromEnvelope={() => {
+            setTreeGrown(false);
+            setActiveBlessingRibbon(null);
+            setStage('envelope');
+          }}
+        />
+      )}
     </div>
   );
 };

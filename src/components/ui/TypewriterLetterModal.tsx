@@ -131,20 +131,21 @@ export const TypewriterLetterModal: React.FC<TypewriterLetterModalProps> = ({
           </svg>
         </div>
 
-        {/* Top-left quick Edit toggle right on the parchment sheet */}
-        {!isEditing ? (
-          <button
-            type="button"
-            className="letter-edit-toggle"
-            onClick={() => setIsEditing(true)}
-            title="直接在信纸上编辑属于你的文字"
-          >
-            <PenLine size={13} />
-            <span>{isSharedGift ? '改成我的信' : '编辑信件'}</span>
-          </button>
-        ) : (
-          <span className="letter-editing-tag">正在编辑信件</span>
-        )}
+        {/* Top-left quick Edit toggle ONLY in creator mode (completely hidden for shared links!) */}
+        {!isSharedGift &&
+          (!isEditing ? (
+            <button
+              type="button"
+              className="letter-edit-toggle"
+              onClick={() => setIsEditing(true)}
+              title="直接在信纸上编辑属于你的文字"
+            >
+              <PenLine size={13} />
+              <span>编辑信件</span>
+            </button>
+          ) : (
+            <span className="letter-editing-tag">正在编辑信件</span>
+          ))}
 
         <button
           type="button"

@@ -147,6 +147,15 @@ body,
   justify-content: center;
 }
 
+.env-recipient-readonly {
+  font-family: 'STKaiti', 'KaiTi', 'Songti SC', Georgia, serif;
+  font-size: clamp(17px, 2.5vw, 21px);
+  letter-spacing: 0.14em;
+  color: #2c261f;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
 .env-recipient-btn {
   display: inline-flex;
   align-items: center;
