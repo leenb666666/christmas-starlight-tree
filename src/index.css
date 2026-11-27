@@ -1,0 +1,887 @@
+:root {
+  --night-bg: #040b13;
+  --gold-main: #f3d285;
+  --gold-bright: #fff1c2;
+  --gold-border: rgba(243, 210, 133, 0.34);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--night-bg);
+  color: #f8f2e4;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+.starlight-app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #040b13;
+}
+
+.canvas-stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* =========================================================
+   STAGE 1: IVORY TABLETOP & EMERALD WAX-SEALED ENVELOPE
+========================================================= */
+.intro-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: radial-gradient(circle at 50% 44%, #f7f4ec 0%, #eae3d5 68%, #ddd4c3 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.65s ease;
+}
+
+.intro-customize-btn {
+  position: absolute;
+  top: 22px;
+  right: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 15px;
+  border-radius: 999px;
+  border: 1px solid rgba(124, 99, 54, 0.3);
+  background: rgba(255, 252, 245, 0.78);
+  backdrop-filter: blur(10px);
+  color: #4b3d28;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.22s ease;
+}
+
+.intro-customize-btn:hover {
+  background: #ffffff;
+  border-color: #b48a3e;
+  color: #1f1b15;
+  transform: translateY(-1px);
+}
+
+.intro-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 20px;
+}
+
+.intro-envelope {
+  position: relative;
+  width: min(440px, 88vw);
+  aspect-ratio: 520 / 330;
+  cursor: pointer;
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease;
+}
+
+.intro-envelope:hover {
+  transform: translateY(-6px) scale(1.015);
+}
+
+.intro-envelope.is-unsealing {
+  transform: scale(1.08) translateY(-10px);
+  opacity: 0;
+}
+
+.intro-env-shadow {
+  position: absolute;
+  inset: 14px 12px -16px;
+  border-radius: 16px;
+  background: radial-gradient(ellipse at center, rgba(46, 36, 22, 0.28) 0%, rgba(46, 36, 22, 0) 74%);
+  pointer-events: none;
+}
+
+.intro-env-svg {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 10px;
+  filter: drop-shadow(0 18px 34px rgba(34, 28, 18, 0.22));
+}
+
+.intro-wax-pulse {
+  position: absolute;
+  left: 50%;
+  top: 55.8%;
+  width: 74px;
+  height: 74px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px solid rgba(196, 48, 48, 0.55);
+  pointer-events: none;
+  animation: waxPulseRing 2s ease-out infinite;
+}
+
+.intro-caption-main {
+  font-family: 'STKaiti', 'KaiTi', 'Songti SC', Georgia, serif;
+  font-size: 19px;
+  color: #2f281f;
+  letter-spacing: 0.1em;
+  margin-top: 6px;
+}
+
+.intro-caption-hint {
+  font-size: 12.5px;
+  color: #7c7162;
+  letter-spacing: 0.06em;
+  animation: softBreathe 2.4s ease-in-out infinite;
+}
+
+/* Pearlescent white-gold flash veil matching 00:01 -> 00:02 */
+.intro-flash-veil {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 48%, #ffffff 0%, #fff6dd 52%, #e8d5a8 100%);
+  opacity: 0;
+  transition: opacity 0.52s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.intro-flash-veil.active {
+  opacity: 1;
+}
+
+@keyframes waxPulseRing {
+  0% { transform: translate(-50%, -50%) scale(0.85); opacity: 0.85; }
+  100% { transform: translate(-50%, -50%) scale(1.65); opacity: 0; }
+}
+
+@keyframes softBreathe {
+  0%, 100% { opacity: 0.65; }
+  50% { opacity: 1; }
+}
+
+/* =========================================================
+   STAGE 2: STARRY NIGHT HUD & CALLIGRAPHY TITLE
+========================================================= */
+.scene-hud {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 15;
+}
+
+.scene-top-actions {
+  position: absolute;
+  top: 20px;
+  right: 22px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.hud-chip,
+.hud-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 13px;
+  border-radius: 999px;
+  border: 1px solid rgba(243, 210, 133, 0.26);
+  background: rgba(8, 20, 32, 0.55);
+  backdrop-filter: blur(12px);
+  color: rgba(248, 240, 224, 0.88);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+}
+
+.hud-icon-btn {
+  width: 34px;
+  padding: 0;
+}
+
+.hud-chip:hover,
+.hud-icon-btn:hover {
+  border-color: rgba(255, 238, 178, 0.65);
+  color: #fff3c4;
+  background: rgba(16, 36, 54, 0.75);
+}
+
+/* Calligraphic "Merry Christmas" left-to-right writing reveal (00:07 - 00:08) */
+.calligraphy-header {
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  text-align: center;
+  width: 92vw;
+}
+
+.calligraphy-header.is-visible {
+  opacity: 1;
+}
+
+.calligraphy-mask {
+  overflow: hidden;
+  display: inline-block;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 2.1s cubic-bezier(0.25, 0.8, 0.25, 1) 0.15s;
+}
+
+.calligraphy-header.is-visible .calligraphy-mask {
+  clip-path: inset(0 0% 0 0);
+}
+
+.calligraphy-text {
+  font-family: 'Brush Script MT', 'Segoe Script', 'Snell Roundhand', 'Apple Chancery', 'Georgia', cursive, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(36px, 5.4vw, 62px);
+  letter-spacing: 0.03em;
+  line-height: 1.15;
+  padding: 2px 14px;
+  background: linear-gradient(180deg, #ffffff 0%, #fff0c2 52%, #dfb359 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 18px rgba(255, 224, 145, 0.55));
+  white-space: nowrap;
+}
+
+.calligraphy-subtitle {
+  font-family: 'STKaiti', 'KaiTi', 'Songti SC', serif;
+  font-size: 13.5px;
+  letter-spacing: 0.18em;
+  color: rgba(255, 239, 198, 0.82);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.9s ease 1.1s, transform 0.9s ease 1.1s;
+}
+
+.calligraphy-header.is-visible .calligraphy-subtitle {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Floating golden blessing ribbon (00:18 - 00:21) */
+.wish-ribbon-banner {
+  position: absolute;
+  bottom: 146px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 22px;
+  border-radius: 999px;
+  background: rgba(8, 18, 30, 0.84);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 228, 156, 0.68);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.45), 0 0 28px rgba(255, 214, 118, 0.3);
+  color: #fff6d6;
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-align: center;
+  max-width: 88vw;
+  animation: ribbonFloatIn 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes ribbonFloatIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(16px) scale(0.94); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+/* Bottom twin glowing action orbs (matching 00:09 - 00:12!) */
+.scene-bottom-orbs {
+  position: absolute;
+  bottom: 48px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.9s ease 0.5s, transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.5s;
+}
+
+.scene-bottom-orbs.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.glow-orb-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: transparent;
+  color: #fceec7;
+  cursor: pointer;
+  transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.glow-orb-btn:hover {
+  transform: translateY(-4px) scale(1.05);
+}
+
+.orb-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff7dc;
+  border: 1.5px solid rgba(255, 232, 166, 0.65);
+  background: radial-gradient(circle at 35% 30%, rgba(242, 198, 104, 0.42), rgba(20, 36, 52, 0.76));
+  box-shadow: 0 0 24px rgba(245, 200, 102, 0.42), inset 0 1px 6px rgba(255, 245, 212, 0.35);
+  backdrop-filter: blur(10px);
+  transition: box-shadow 0.24s ease;
+}
+
+.glow-orb-btn:hover .orb-circle {
+  box-shadow: 0 0 34px rgba(255, 224, 138, 0.72), inset 0 1px 10px rgba(255, 248, 220, 0.5);
+}
+
+.orb-label {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: rgba(255, 240, 200, 0.9);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.65);
+}
+
+.ripple-micro-hint {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11.5px;
+  color: rgba(232, 238, 244, 0.8);
+  background: rgba(4, 11, 19, 0.62);
+  border: 1px solid rgba(243, 210, 133, 0.18);
+  padding: 4px 13px;
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   STAGE 3: FESTIVE QUIZ MODAL (00:13 - 00:17)
+========================================================= */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(3, 8, 15, 0.68);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeInBg 0.28s ease;
+}
+
+@keyframes fadeInBg {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.quiz-card {
+  position: relative;
+  width: min(410px, 92vw);
+  border-radius: 18px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #1b1116 0%, #120d14 100%);
+  border: 1px solid rgba(240, 200, 109, 0.42);
+  box-shadow: 0 28px 68px rgba(0, 0, 0, 0.65), 0 0 36px rgba(236, 184, 78, 0.16);
+  animation: popModal 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes popModal {
+  from { opacity: 0; transform: translateY(18px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 5;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 230, 166, 0.35);
+  background: rgba(12, 8, 10, 0.55);
+  color: #f8ecd0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.quiz-banner {
+  width: 100%;
+  height: 130px;
+  border-radius: 17px 17px 0 0;
+  overflow: hidden;
+}
+
+.quiz-banner-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.quiz-body {
+  padding: 18px 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.quiz-title {
+  font-family: 'STKaiti', 'KaiTi', 'Songti SC', serif;
+  font-size: 20px;
+  color: #ffe8a8;
+  text-align: center;
+  letter-spacing: 0.08em;
+}
+
+.quiz-question {
+  font-size: 13.5px;
+  color: rgba(248, 240, 224, 0.86);
+  line-height: 1.65;
+  text-align: center;
+}
+
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.quiz-opt-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 13px;
+  border-radius: 12px;
+  border: 1px solid rgba(243, 210, 133, 0.24);
+  background: rgba(255, 255, 255, 0.04);
+  color: #f2ead9;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quiz-opt-btn:hover {
+  border-color: rgba(255, 228, 152, 0.52);
+  background: rgba(243, 210, 133, 0.1);
+}
+
+.quiz-opt-btn.selected {
+  border-color: #f6d584;
+  background: rgba(243, 200, 102, 0.18);
+  color: #fff4ce;
+}
+
+.quiz-radio {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(243, 210, 133, 0.65);
+  flex-shrink: 0;
+  position: relative;
+}
+
+.quiz-opt-btn.selected .quiz-radio::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: #ffe399;
+}
+
+.quiz-submit-btn {
+  margin-top: 4px;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 12px 16px;
+  border-radius: 999px;
+  border: 1px solid #ffe8a8;
+  background: linear-gradient(135deg, #d7a846 0%, #f5d88b 50%, #c89432 100%);
+  color: #1c1408;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(235, 190, 92, 0.35);
+  transition: transform 0.2s ease;
+}
+
+.quiz-submit-btn:hover {
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   STAGE 4: WAX-SEALED TYPEWRITER LETTER (00:23 - 00:32)
+========================================================= */
+.letter-sheet {
+  position: relative;
+  width: min(468px, 92vw);
+  max-height: 86vh;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #faf7f0 0%, #f1eadc 100%);
+  border: 1px solid #dfd3bc;
+  box-shadow: 0 30px 72px rgba(0, 0, 0, 0.65), inset 0 0 0 8px rgba(201, 165, 92, 0.08);
+  padding: 46px 30px 24px;
+  display: flex;
+  flex-direction: column;
+  animation: popModal 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  color: #2c251d;
+}
+
+.letter-wax-crown {
+  position: absolute;
+  top: -26px;
+  left: 50%;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 8px 14px rgba(26, 8, 8, 0.38));
+}
+
+.letter-close-icon {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid #ddd2be;
+  background: rgba(255, 255, 255, 0.7);
+  color: #6b5e4c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.letter-scroll-body {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 6px;
+  min-height: 280px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(184, 138, 52, 0.35) transparent;
+}
+
+.letter-scroll-body::-webkit-scrollbar {
+  width: 5px;
+}
+
+.letter-scroll-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.letter-scroll-body::-webkit-scrollbar-thumb {
+  background: rgba(184, 138, 52, 0.35);
+  border-radius: 999px;
+}
+
+.letter-typewriter-text {
+  font-family: 'STKaiti', 'KaiTi', 'Songti SC', Georgia, serif;
+  font-size: 16.5px;
+  line-height: 1.95;
+  white-space: pre-wrap;
+  word-break: break-word;
+  letter-spacing: 0.04em;
+  color: #2f271f;
+  user-select: text;
+}
+
+.typewriter-caret {
+  display: inline-block;
+  width: 2px;
+  height: 17px;
+  background: #b88a34;
+  margin-left: 3px;
+  vertical-align: -2px;
+  animation: blinkCaret 0.8s steps(2) infinite;
+}
+
+@keyframes blinkCaret {
+  50% { opacity: 0; }
+}
+
+.letter-signature {
+  margin-top: 24px;
+  text-align: right;
+  font-family: 'STKaiti', 'KaiTi', 'Songti SC', serif;
+  font-size: 16px;
+  color: #63523d;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.letter-signature.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.letter-footer {
+  margin-top: 22px;
+  display: flex;
+  justify-content: center;
+}
+
+.letter-skip-btn {
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1px solid #d7cbb4;
+  background: transparent;
+  color: #7c6d59;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.letter-accept-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 24px;
+  border-radius: 999px;
+  border: 1px solid #2b654a;
+  background: linear-gradient(135deg, #1b4d37 0%, #246649 100%);
+  color: #f8f2e4;
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: 0 8px 22px rgba(27, 77, 55, 0.35);
+  transition: transform 0.2s ease;
+}
+
+.letter-accept-btn:hover {
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   CUSTOMIZE & SHARE DRAWER
+========================================================= */
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(2, 7, 13, 0.64);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.drawer-panel {
+  width: min(420px, 94vw);
+  height: 100%;
+  background: #0b1622;
+  border-left: 1px solid rgba(243, 210, 133, 0.26);
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 14px;
+}
+
+.drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(243, 210, 133, 0.16);
+}
+
+.drawer-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15.5px;
+  font-weight: 600;
+  color: #ffe8a8;
+}
+
+.drawer-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(243, 210, 133, 0.26);
+  background: transparent;
+  color: #e8dfd0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.drawer-scroll {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 4px;
+}
+
+.drawer-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.drawer-field span {
+  font-size: 12px;
+  color: rgba(243, 224, 178, 0.78);
+}
+
+.drawer-field input,
+.drawer-field textarea {
+  width: 100%;
+  padding: 8px 11px;
+  border-radius: 9px;
+  border: 1px solid rgba(243, 210, 133, 0.24);
+  background: rgba(5, 13, 22, 0.85);
+  color: #f8f2e4;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+}
+
+.drawer-field input:focus,
+.drawer-field textarea:focus {
+  border-color: #f6d584;
+}
+
+.drawer-divider {
+  height: 1px;
+  background: rgba(243, 210, 133, 0.14);
+  margin: 4px 0;
+}
+
+.drawer-share-card {
+  margin-top: 6px;
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(20, 38, 56, 0.55);
+  border: 1px solid rgba(243, 210, 133, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.drawer-share-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #ffe8a8;
+}
+
+.drawer-share-desc {
+  font-size: 11.5px;
+  color: rgba(226, 232, 240, 0.74);
+  line-height: 1.5;
+}
+
+.drawer-url-box {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(4, 11, 19, 0.85);
+  border: 1px solid rgba(243, 210, 133, 0.2);
+  font-size: 11.5px;
+  color: #b9cad8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.drawer-gold-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid #ffe8a8;
+  background: linear-gradient(135deg, #d7a846 0%, #f5d88b 50%, #c89432 100%);
+  color: #161006;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.drawer-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(243, 210, 133, 0.16);
+}
+
+.drawer-sub-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 13px;
+  border-radius: 999px;
+  border: 1px solid rgba(243, 210, 133, 0.26);
+  background: transparent;
+  color: #e8dfd0;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.drawer-sub-btn:hover {
+  border-color: #f6d584;
+  color: #ffe8a8;
+}
+
+@media (max-width: 640px) {
+  .scene-top-actions {
+    top: 14px;
+    right: 12px;
+  }
+  .calligraphy-header {
+    top: 56px;
+  }
+  .scene-bottom-orbs {
+    bottom: 46px;
+    gap: 28px;
+  }
+  .letter-sheet {
+    padding: 42px 20px 20px;
+  }
+  .letter-typewriter-text {
+    font-size: 15px;
+  }
+}
